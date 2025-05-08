@@ -8,9 +8,9 @@ INC = -I$(INC_DIR)
 SRC_DIR = src
 OBJ_DIR = obj
 
-SRC = $(SRC_DIR)/init_data.c \
+SRC = $(SRC_DIR)/free_error.c \
 	  $(SRC_DIR)/init_data.c \
-	  $(SRC_DIR)/init_data.c \
+	  $(SRC_DIR)/libft_utils.c \
 	  $(SRC_DIR)/init_data.c \
 	  $(SRC_DIR)/init_data.c \
 	  main.c

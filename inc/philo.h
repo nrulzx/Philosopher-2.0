@@ -47,13 +47,17 @@ typedef struct s_data
 }	t_data;
 
 /* ____________________ init_data ___________________ */
-int	init_data(t_data *data, int ac, char **av);
+int		init_data(t_data *data, int ac, char **av);
 
 /* ____________________ free_error ___________________ */
-int	print_error(char *msg);
-int	free_error(t_data *data, char *msg);
+int		print_error(char *msg);
+int		free_error(t_data *data, char *msg);
+void	cleanup(t_data *data);
 
 /* ____________________ libft_utils ___________________ */
-int	ft_atoi(const char *str);
+int		ft_atoi(const char *str);
+
+/* ____________________ thread_process ___________________ */
+void    *thread_process(void *arg)
 
 #endif

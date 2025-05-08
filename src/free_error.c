@@ -12,3 +12,19 @@ int	free_error(t_data *data, char *msg)
 	printf("%s\n", msg);
 	return (1);
 }
+
+void	cleanup(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->nbr_philo)
+	{
+		pthread_mutex_destroy(&data->fork[i].mutex);
+		i++;
+	}
+	if (data->thread)
+		free(data->thread);
+	if (data->fork)
+		free(data->fork);
+}
