@@ -9,10 +9,12 @@ SRC_DIR = src
 OBJ_DIR = obj
 
 SRC = $(SRC_DIR)/free_error.c \
+	  $(SRC_DIR)/get_time.c \
 	  $(SRC_DIR)/init_data.c \
 	  $(SRC_DIR)/libft_utils.c \
-	  $(SRC_DIR)/init_data.c \
-	  $(SRC_DIR)/init_data.c \
+	  $(SRC_DIR)/main_process.c \
+	  $(SRC_DIR)/monitor_process.c \
+	  $(SRC_DIR)/thread_process.c \
 	  main.c
 
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)

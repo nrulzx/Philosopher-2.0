@@ -4,9 +4,8 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <stdbool.h>
 # include <pthread.h>
-# include <string.h>
+# include <sys/time.h>
 
 typedef enum e_state
 {
@@ -16,48 +15,62 @@ typedef enum e_state
 	DIED
 }	t_state;
 
-typedef struct s_fork
-{
-	int				id;
-	pthread_mutex_t	mutex;
-}	t_fork;
-
-typedef struct s_thread
-{
-	struct s_data	*data;
-	int				id;
-	int				count_process;
-	long			last_process_time;
-	pthread_t		thread;
-	t_state			state;
-	t_fork			*left_fork;
-	t_fork			*right_fork;
-}	t_thread;
-
 typedef struct s_data
 {
 	int				nbr_philo;	
 	int				time_to_die;	
 	int				time_to_eat;	
 	int				time_to_slp;
-	int				nbr_meal;
-	bool			stop_all;
-	t_fork			*fork;
-	t_thread		*thread;
+	int				must_eat;
+	int				dead;
+	int				finish;
+	long			start_time;
+	pthread_mutex_t write_mutex;
+	pthread_mutex_t dead_mutex;
+	pthread_mutex_t thread[200];
+	pthread_mutex_t fork[200];
 }	t_data;
 
-/* ____________________ init_data ___________________ */
-int		init_data(t_data *data, int ac, char **av);
 
-/* ____________________ free_error ___________________ */
-int		print_error(char *msg);
-int		free_error(t_data *data, char *msg);
-void	cleanup(t_data *data);
+typedef struct s_thread
+{
+	int				id;
+	int				process;
+	int				left_fork;
+	int				right_fork;
+	long			last_process;
+	pthread_mutex_t	mutex_process;
+	t_state			state;
+	t_data			*data;
+}	t_thread;
 
-/* ____________________ libft_utils ___________________ */
-int		ft_atoi(const char *str);
 
-/* ____________________ thread_process ___________________ */
-void    *thread_process(void *arg)
+/* ========================== clean ========================== */
+int				print_error(char *msg);
+int				free_error(t_data *data, char *msg);
+void			print_state(t_data *data, int id, char *state);
+void			cleanup(t_data *data, t_thread *thread);
+
+/* ========================= init_data ======================== */
+void			init_data(t_data *data, int ac, char **av);
+
+/* ========================== utils ========================== */
+int				ft_atoi(const char *str);
+int				is_number(char *str);
+long			get_time(void);
+void			ft_sleep(unsigned long time);
+
+/* ========================== init ========================== */
+t_philo			*init_philosophers(t_data *data);
+void			init_forks(int nb_philos);
+int				start_process(t_data *data, t_philo *philos);
+void			cleanup(t_data *data, t_philo *philos);
+
+/* ========================== action ========================== */
+void			*philosopher_routine(void *arg);
+void			*monitor_routine(void *arg);
+int				philo_eat(t_philo *philo);
+void			philo_sleep(t_philo *philo);
+void			philo_think(t_philo *philo);
 
 #endif

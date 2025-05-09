@@ -1,14 +1,13 @@
 #include "inc/philo.h"
 
-int	main(int ac, char **av)
+int	main(int argc, char **argv)
 {
-	t_data	data;
+	t_data		data;
+	t_thread	*thread;
 
-	memset(&data, 0, sizeof(t_data));
-	if (init_data(&data, ac, av) != 0)
-		return (1);
-	monitor_philosophers(&data);
-	join_threads(&data);
-	cleanup_resources(&data);
+	check_args(ac, av);
+	init_data(&data, ac, av);
+	start_process(&data, thread);
+	cleanup(&data, thread);
 	return (0);
 }
