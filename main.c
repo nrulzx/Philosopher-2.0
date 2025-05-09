@@ -3,11 +3,11 @@
 int	main(int argc, char **argv)
 {
 	t_data		data;
-	t_thread	*thread;
 
-	check_args(ac, av);
-	init_data(&data, ac, av);
-	start_process(&data, thread);
-	cleanup(&data, thread);
+	if (check_args(&data, argc, argv))
+		return (1);
+	init_data(&data, argc, argv);
+	start_process(&data, NULL);
+	cleanup(&data, NULL);
 	return (0);
 }

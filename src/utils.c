@@ -52,8 +52,8 @@ void	ft_sleep(long time)
 
 long	get_time(void)
 {
-	struct timeval  tv;
-	long            time;
+	struct timeval	tv;
+	long			time;
 
 	gettimeofday(&tv, NULL);
 	time = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);

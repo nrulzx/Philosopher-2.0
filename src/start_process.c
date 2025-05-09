@@ -7,86 +7,101 @@ static int	check_if_died(t_thread *thread, int time_to_die)
     long    current_time;
 
     current_time = get_time();
-    if (current_time - thread->last_process_time > time_to_die)
+    pthread_mutex_lock(&thread->mutex_process);
+    if (current_time - thread->last_process > time_to_die)
     {
         thread->state = DIED;
+        pthread_mutex_unlock(&thread->mutex_process);
         return (1);
     }
+    pthread_mutex_unlock(&thread->mutex_process);
     return (0);
 }
 
-static void print_death_message(t_thread *thread)
+static void print_death_message(t_data *data, int id)
 {
-    printf("%ld %d died\n", get_time(), thread->id);
+    pthread_mutex_lock(&data->write_mutex);
+    if (!data->dead)
+    {
+        printf("%ld %d died\n", get_time() - data->start_time, id);
+        data->dead = 1;
+    }
+    pthread_mutex_unlock(&data->write_mutex);
 }
 
 static int	check_nbr_meal(t_data *data)
 {
     int	i;
-    int	nbr;
+    int	count;
 
-    if (data->nbr_meal < 0)
+    if (data->must_eat < 0)
         return (0);
     i = 0;
-    nbr = 0;
+    count = 0;
     while (i < data->nbr_philo)
     {
-        if (data->thread[i].count_process >= data->nbr_meal)
-            nbr++;
+        if (data->threads[i].process >= data->must_eat)
+            count++;
         i++;
     }
-    return (nbr == data->nbr_philo);
+    return (count == data->nbr_philo);
 }
 
-void    *monitor_process(void *arg)
+void *monitor_routine(void *arg)
 {
     t_data  *data;
     int     i;
 
     data = (t_data *)arg;
-    while (!data->stop_all)
+    while (!data->dead && !data->finish)
     {
         i = 0;
-        while (i < data->nbr_philo)
+        while (i < data->nbr_philo && !data->dead)
         {
-            if (check_if_died(&data->thread[i], data->time_to_die))
+            if (check_if_died(&data->threads[i], data->time_to_die))
             {
-                print_death_message(&data->thread[i]);
-                data->stop_all = true;
+                print_death_message(data, data->threads[i].id);
                 break;
             }
             i++;
         }
-        if (data->stop_all || check_nbr_meal(data))
+        if (data->dead || check_nbr_meal(data))
         {
-            data->stop_all = true;
+            pthread_mutex_lock(&data->dead_mutex);
+            data->finish = 1;
+            pthread_mutex_unlock(&data->dead_mutex);
             break;
         }
-        usleep(100);
+        usleep(1000);
     }
     return (NULL);
 }
 
-int	start_process(t_data *data, t_philo *philos)
+int	start_process(t_data *data, t_thread *philos)
 {
 	int			i;
-	pthread_t	monitor[200];
+	pthread_t	threads_id[200];
+	pthread_t	monitor;
 
-	data->start_time = get_time();
+	(void)philos;
+	if (!init_philosophers(data))
+		return (1);
+	
 	i = 0;
 	while (i < data->nbr_philo)
 	{
-		philo[i].last_process = data->start_time;
-		if (pthread_create(&data->thread[i], NULL, thread_action, &philo[i]))
+		if (pthread_create(&threads_id[i], NULL, thread_action, &data->threads[i]))
 			return (1);
-		if (pthread_create(&monitor[i], NULL, monitor_process, &philo[i]))
-			return (1);
+		i++;
 	}
+	if (pthread_create(&monitor, NULL, monitor_routine, data))
+		return (1);
 	i = 0;
-	while (i < data->nb_philos)
+	while (i < data->nbr_philo)
 	{
-		pthread_join(data->thread[i], NULL);
-		pthread_join(monitor[i], NULL);
+		pthread_join(threads_id[i], NULL);
+		i++;
 	}
+	pthread_join(monitor, NULL);
 	return (0);
 }

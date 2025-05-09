@@ -6,6 +6,7 @@
 # include <stdlib.h>
 # include <pthread.h>
 # include <sys/time.h>
+# include <stdbool.h>
 
 typedef enum e_state
 {
@@ -14,6 +15,18 @@ typedef enum e_state
 	SLEEPING,
 	DIED
 }	t_state;
+
+typedef struct s_thread
+{
+	int				id;
+	int				process;
+	int				left_fork;
+	int				right_fork;
+	long			last_process;
+	pthread_mutex_t	mutex_process;
+	t_state			state;
+	struct s_data	*data;
+}	t_thread;
 
 typedef struct s_data
 {
@@ -27,23 +40,9 @@ typedef struct s_data
 	long			start_time;
 	pthread_mutex_t write_mutex;
 	pthread_mutex_t dead_mutex;
-	pthread_mutex_t thread[200];
 	pthread_mutex_t fork[200];
+	t_thread		*threads;
 }	t_data;
-
-
-typedef struct s_thread
-{
-	int				id;
-	int				process;
-	int				left_fork;
-	int				right_fork;
-	long			last_process;
-	pthread_mutex_t	mutex_process;
-	t_state			state;
-	t_data			*data;
-}	t_thread;
-
 
 /* ========================== clean ========================== */
 int				print_error(char *msg);
@@ -52,25 +51,23 @@ void			print_state(t_data *data, int id, char *state);
 void			cleanup(t_data *data, t_thread *thread);
 
 /* ========================= init_data ======================== */
+int				check_args(t_data *data, int ac, char **av);
 void			init_data(t_data *data, int ac, char **av);
+void			init_forks(t_data *data);
+t_thread		*init_philosophers(t_data *data);
+
+/* ========================== start_process ========================== */
+void			*monitor_routine(void *arg);
+int				start_process(t_data *data, t_thread *philos);
+
+/* ========================== thread_action ========================== */
+void			*thread_action(void *arg);
 
 /* ========================== utils ========================== */
 int				ft_atoi(const char *str);
 int				is_number(char *str);
 long			get_time(void);
-void			ft_sleep(unsigned long time);
+void			ft_sleep(long time);
 
-/* ========================== init ========================== */
-t_philo			*init_philosophers(t_data *data);
-void			init_forks(int nb_philos);
-int				start_process(t_data *data, t_philo *philos);
-void			cleanup(t_data *data, t_philo *philos);
-
-/* ========================== action ========================== */
-void			*philosopher_routine(void *arg);
-void			*monitor_routine(void *arg);
-int				philo_eat(t_philo *philo);
-void			philo_sleep(t_philo *philo);
-void			philo_think(t_philo *philo);
 
 #endif
