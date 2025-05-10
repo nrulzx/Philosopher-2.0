@@ -41,10 +41,26 @@ int	is_number(char *str)
 	return (1);
 }
 
-void	ft_sleep(long time)
-{
-}
-
 long	get_time(void)
 {
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
+
+void	ft_sleep(long time)
+{
+	long	start_time;
+	long	current_time;
+
+	start_time = get_time();
+	while (1)
+	{
+		current_time = get_time();
+		if (current_time - start_time >= time)
+			break ;
+		usleep(100);
+	}
+}
+
