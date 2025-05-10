@@ -55,10 +55,10 @@ void				cleanup(t_data *data, t_thread *thread);
 int					check_args(t_data *data, int ac, char **av);
 void				init_data(t_data *data, int ac, char **av);
 void				init_forks(t_data *data);
-t_thread			*init_philosophers(t_data *data);
+t_thread			*init_thread(t_data *data);
 
 /* ========================== start_process ========================== */
-void				*monitor_routine(void *arg);
+void				*monitor_process(void *arg);
 int					start_process(t_data *data, t_thread *philos);
 
 /* ========================== thread_action ========================== */

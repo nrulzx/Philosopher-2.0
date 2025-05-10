@@ -60,7 +60,7 @@ void	*thread_action(void *arg)
 
 	thread = (t_thread *)arg;
 	if (thread->id % 2 == 0)
-		usleep(1000);
+		usleep(thread->data->time_to_eat * 100);
 	while (!is_finish(thread))
 	{
 		if (philo_eat(thread))

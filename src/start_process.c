@@ -36,7 +36,7 @@ static int	check_nbr_meal(t_data *data)
 	return (count == data->nbr_philo);
 }
 
-void	*monitor_routine(void *arg)
+void	*monitor_process(void *arg)
 {
 	t_data	*data;
 	int		i;
@@ -47,9 +47,9 @@ void	*monitor_routine(void *arg)
 		i = 0;
 		while (i < data->nbr_philo && !data->dead)
 		{
-			if (check_if_died(&data->threads[i++], data->time_to_die))
+			if (check_if_died(&data->threads[i], data->time_to_die))
 			{
-				print_death_message(data, data->threads[i - 1].id);
+				print_death_message(data, data->threads[i].id);
 				break ;
 			}
 		}
@@ -72,7 +72,7 @@ int	start_process(t_data *data, t_thread *philos)
 	pthread_t	monitor;
 
 	(void)philos;
-	if (!init_philosophers(data))
+	if (!init_thread(data))
 		return (1);
 	i = 0;
 	while (i < data->nbr_philo)
@@ -82,7 +82,7 @@ int	start_process(t_data *data, t_thread *philos)
 			return (1);
 		i++;
 	}
-	if (pthread_create(&monitor, NULL, monitor_routine, data))
+	if (pthread_create(&monitor, NULL, monitor_process, data))
 		return (1);
 	i = 0;
 	while (i < data->nbr_philo)
