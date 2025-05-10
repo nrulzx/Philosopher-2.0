@@ -78,4 +78,3 @@ void	init_data(t_data *data, int ac, char **av)
 	init_forks(data);
 	data->threads = NULL;
 }
-	

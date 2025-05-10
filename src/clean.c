@@ -26,10 +26,21 @@ void	print_state(t_data *data, int id, char *state)
 	pthread_mutex_unlock(&data->write_mutex);
 }
 
+void	print_death_message(t_data *data, int id)
+{
+	pthread_mutex_lock(&data->write_mutex);
+	if (!data->dead)
+	{
+		printf("%ld %d died\n", get_time() - data->start_time, id);
+		data->dead = 1;
+	}
+	pthread_mutex_unlock(&data->write_mutex);
+}
+
 void	cleanup(t_data *data, t_thread *thread)
 {
 	int	i;
-	
+
 	(void)thread;
 	i = 0;
 	while (i < data->nbr_philo)
