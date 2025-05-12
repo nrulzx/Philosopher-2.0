@@ -1,28 +1,16 @@
-/* ============================= INIT_DATA ============================= */
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_data.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: flash19 <flash19@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/01/01 00:00:00 by flash19           #+#    #+#             */
+/*   Updated: 2023/01/01 00:00:00 by flash19          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../inc/philo.h"
-
-int	check_args(int ac, char **av)
-{
-	int	i;
-
-	if (ac < 5 || ac > 6)
-		return (print_error("Error: Invalid number of arguments\n"));
-	i = 1;
-	while (i < ac)
-	{
-		if (!is_number(av[i]))
-			return (print_error("Error: Arguments must be positive numbers\n"));
-		i++;
-	}
-	if (ft_atoi(av[1]) <= 0)
-		return (print_error("Error: There must be at least one philosopher\n"));
-	if (ft_atoi(av[2]) <= 0 || ft_atoi(av[3]) <= 0 || ft_atoi(av[4]) <= 0)
-		return (print_error("Error: Time values must be positive\n"));
-	if (ac == 6 && ft_atoi(av[5]) <= 0)
-		return (print_error("Error: Number of meals must be positive\n"));
-	return (0);
-}
 
 int	init_args(t_data *data, int ac, char **av)
 {
@@ -30,7 +18,6 @@ int	init_args(t_data *data, int ac, char **av)
 	data->time_to_die = ft_atoi(av[2]);
 	data->time_to_eat = ft_atoi(av[3]);
 	data->time_to_sleep = ft_atoi(av[4]);
-
 	if (ac == 6)
 		data->must_eat = ft_atoi(av[5]);
 	else
@@ -57,7 +44,7 @@ int	init_args(t_data *data, int ac, char **av)
 t_forks	*init_forks(t_data *data)
 {
 	t_forks	*forks;
-	int 	i;
+	int		i;
 
 	forks = (t_forks *)malloc(sizeof(t_forks) * data->philo_num);
 	if (!forks)
@@ -81,7 +68,7 @@ t_forks	*init_forks(t_data *data)
 t_thread	*init_thread(t_data *data)
 {
 	t_thread	*threads;
-	int 		i;
+	int			i;
 
 	threads = (t_thread *)malloc(sizeof(t_thread) * data->philo_num);
 	if (!threads)
@@ -101,10 +88,26 @@ t_thread	*init_thread(t_data *data)
 	return (threads);
 }
 
-t_data	init_data(t_data *data, int ac, char **av)
+static void	cleanup_init_failure(t_data *data)
 {
 	int	i;
 
+	if (data->forks)
+	{
+		i = 0;
+		while (i < data->philo_num)
+			pthread_mutex_destroy(&data->forks[i++].mutex);
+		free(data->forks);
+	}
+	pthread_mutex_destroy(&data->print_mutex);
+	pthread_mutex_destroy(&data->death_mutex);
+	pthread_mutex_destroy(&data->meal_mutex);
+	data->forks = NULL;
+	data->threads = NULL;
+}
+
+t_data	init_data(t_data *data, int ac, char **av)
+{
 	if (init_args(data, ac, av) != 0)
 		return (*data);
 	data->forks = init_forks(data);
@@ -119,15 +122,7 @@ t_data	init_data(t_data *data, int ac, char **av)
 	data->threads = init_thread(data);
 	if (!data->threads)
 	{
-		i = 0;
-		while (i < data->philo_num)
-			pthread_mutex_destroy(&data->forks[i++].mutex);
-		free(data->forks);
-		pthread_mutex_destroy(&data->print_mutex);
-		pthread_mutex_destroy(&data->death_mutex);
-		pthread_mutex_destroy(&data->meal_mutex);
-		data->forks = NULL;
-		data->threads = NULL;
+		cleanup_init_failure(data);
 	}
 	return (*data);
 }

@@ -52,29 +52,37 @@ typedef struct s_data
 	t_thread		*threads;
 }					t_data;
 
-/* ========================== clean ========================== */
+/* ========================== clean.c ========================== */
 int					print_error(char *msg);
 int					free_error(t_data *data, char *msg);
 void				print_state(t_data *data, int id, char *state);
 void				cleanup(t_data *data, t_thread *thread);
 
-/* ========================= init_data ======================== */
+/* ========================= init_data.c ======================== */
 int					check_args(int ac, char **av);
 int					init_args(t_data *data, int ac, char **av);
 t_data				init_data(t_data *data, int ac, char **av);
 t_forks				*init_forks(t_data *data);
 t_thread			*init_thread(t_data *data);
 
-/* ========================== start_process ========================== */
+/* ========================== thread_utils.c ========================== */
 int					is_finish(t_thread *thread);
+int					handle_single_philo(t_data *data, int right_fork);
+void				update_meal_time(t_thread *thread);
+void				release_forks(t_data *data, int right_fork, int left_fork);
+void				join_threads(t_data *data);
+
+/* ========================== start_process.c ========================== */
 int					check_died(t_thread *thread, int time_to_die);
+int					check_all_ate(t_data *data);
 void				*monitor_process(void *arg);
 int					start_process(t_data *data);
 
-/* ========================== thread_action ========================== */
+/* ========================== thread_action.c ========================== */
+int					philo_action(t_thread *thread, t_state state);
 void				*thread_action(void *arg);
 
-/* ========================== utils ========================== */
+/* ========================== utils.c ========================== */
 int					ft_atoi(const char *str);
 int					is_number(char *str);
 long				get_time(void);
